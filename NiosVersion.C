@@ -20,6 +20,7 @@ struct fb_t {
 };
 
 
+
 struct fb_t *const fbp = ((struct fb_t*) 0x8000000);
 
 
@@ -34,6 +35,10 @@ int VALUES[NUM_CARDS] = {1, 2, 3, 4, 5, 6, 7, 8, 9, 0, 0, 0, 0, 1, 2, 3, 4, 5,
 
 
 int indexed_cards[MAX_SIZE] = {-1}; // Initialize array with 0
+int playerCardLocationX[3] = {50, 70, 90};
+int dealerCardLocationX[3] = {200, 210, 240};
+int cardLocationY[3] = {50, 60, 70};
+
 size_t size = 0;
 int (*cardArrayPointer)[45];
 
@@ -278,6 +283,15 @@ const int baccaratTable [238][315] = {
 	{65535,65535,65535,65535,65535,65535,65535,65535,65535,65535,65535,65535,65535,65535,65535,65535,65535,65535,65535,65535,65535,65535,65535,65535,65535,65535,65535,65535,65535,65535,65535,65535,65535,65535,65535,65535,65535,65535,65535,65535,65535,65535,65535,65535,65535,65535,65535,65535,65535,65535,65535,65535,65535,65535,65535,65535,65535,65535,65535,65535,65535,65535,65535,65535,65535,65535,65535,65535,65535,65535,65535,65535,65535,65535,65535,65535,65535,65535,65535,65535,65535,65535,65535,65535,65535,65535,65535,65535,65535,65535,65535,65535,65535,65535,65535,65535,65535,65535,65535,65535,65535,65535,65535,65535,65535,65535,65535,65535,65535,65535,65535,65535,65535,65535,65535,65535,65535,65535,65535,65535,65535,65535,65535,65535,65535,65535,65535,65535,65535,65535,65535,65535,65535,65535,65535,65535,65535,65535,65535,65535,65535,65535,65535,65535,65535,65535,65535,65535,65535,65535,65535,65535,65535,65535,65535,65535,65535,65535,65535,65535,65535,65535,65535,65535,65535,65535,65535,65535,65535,65535,65535,65535,65535,65535,65535,65535,65535,65535,65535,65535,65535,65535,65535,65535,65535,65535,65535,65535,65535,65535,65535,65535,65535,65535,65535,65535,65535,65535,65535,65535,65535,65535,65535,65535,65535,65535,65535,65535,65535,65535,65535,65535,65535,65535,65535,65535,65535,65535,65535,65535,65535,65535,65535,65535,65535,65535,65535,65535,65535,65535,65535,65535,65535,65535,65535,65535,65535,65535,65535,65535,65535,65535,65535,65535,65535,65535,65535,65535,65535,65535,65535,65535,65535,65535,65535,65535,65535,65535,65535,65535,65535,65535,65535,65535,65535,65535,65535,65535,65535,65535,65535,65535,65535,65535,65535,65535,65535,65535,65535,65535,65535,65535,65535,65535,65535,65535,65535,65535,65535,65535,65535,65535,65535,65535,65535,65535,65535,65535,65535,65535,65535,65535,65535,65535,65535,65535,65535,65535,65535,65535,65535,65535,65535,65535,65535},
 
 };
+
+void drawCard(const int (*array)[45], int x_loc, int y_loc) {
+	
+    for (int x = 0; x < xCard; x++) {
+        for (int y = 0; y < yCard; y++) {
+      		fbp->pixels[x + y_loc][y+x_loc] = array[x][y];
+   		}
+    }
+}
 
 const int twoClubs[64][45] = {
 	{65535,29582,35953,38066,38066,38066,38066,38066,38066,38066,38066,38066,38066,38066,38066,38066,38066,38066,38066,38066,38066,38066,38066,38066,38066,38066,38066,38066,38066,38066,38066,38066,38066,38066,38066,38066,38066,38066,38066,38066,38066,38066,35953,29582,65535},
@@ -4013,24 +4027,31 @@ int computeScore(const char *hand[], int dealtCards) {
   return total_value % 10;
 }
 
-void generate_hand(const char *hand[]) {
-  srand(time(NULL));
-  for (int i = 0; i < 2; i++) {
-    int card_index = rand() % NUM_CARDS;
-    while(checkAndAppend(card_index)){
-      card_index = rand() % NUM_CARDS;
+void generate_hand(const char *hand[], const int CardLocationX[]) {
+    srand(time(NULL));
+    for (int i = 0; i < 2; i++) {
+        int card_index = rand() % NUM_CARDS;
+        while(checkAndAppend(card_index)){
+            card_index = rand() % NUM_CARDS;
+        }
+
+        cardArrayPointer = getCardArray(card_index);
+        drawCard(cardArrayPointer, CardLocationX[i], cardLocationY[i]);
+
+        printf("%s%c ", CARDS[card_index], findthesuit(card_index));
+        hand[i] = CARDS[card_index];
     }
-    printf("%s%c ", CARDS[card_index], findthesuit(card_index));
-    hand[i] = CARDS[card_index];
-  }
 }
 
-void generate_third_card(const char *hand[], int *dealtCards) {
+
+void generate_third_card(const char *hand[], int *dealtCards, const int CardLocationX[]) {
   srand(time(NULL));
   int card_index = rand() % NUM_CARDS;
   while(checkAndAppend(card_index)){
       card_index = rand() % NUM_CARDS;
   }
+  cardArrayPointer = getCardArray(card_index);
+  drawCard(cardArrayPointer, CardLocationX[2], cardLocationY[2]);
   printf("%s%c ", CARDS[card_index], findthesuit(card_index));
   hand[2] = CARDS[card_index];
   (*dealtCards)++;
@@ -4091,9 +4112,9 @@ void play(double player_bet, double tie_bet, double banker_bet) {
   int numCardsDealer = 2;
 
   printf("Player's hand: ");
-  generate_hand(player_hand);
+  generate_hand(player_hand,playerCardLocationX);
   printf("\nBanker's hand: ");
-  generate_hand(banker_hand);
+  generate_hand(banker_hand, dealerCardLocationX);
 
   int player_score = computeScore(player_hand, numCardsPlayer);
   int banker_score = computeScore(banker_hand, numCardsDealer);
@@ -4107,25 +4128,25 @@ void play(double player_bet, double tie_bet, double banker_bet) {
   }
   if (player_score <= 5) {
     printf("\n Player's Third Card:");
-    generate_third_card(player_hand, &numCardsPlayer);
+    generate_third_card(player_hand, &numCardsPlayer, playerCardLocationX);
     player_score = computeScore(player_hand, numCardsPlayer);
   }
   if (banker_score < 7) {
     if (banker_score <= 3) {
       printf("\n Banker's Third Card:");
-      generate_third_card(banker_hand, &numCardsDealer);
+      generate_third_card(banker_hand, &numCardsDealer, dealerCardLocationX);
       banker_score = computeScore(banker_hand, numCardsDealer);
     } else if (banker_score == 4 && player_score >= 2 && player_score <= 7) {
       printf("\n Banker's Third Card:");
-      generate_third_card(banker_hand, &numCardsDealer);
+      generate_third_card(banker_hand, &numCardsDealer, dealerCardLocationX);
       banker_score = computeScore(banker_hand, numCardsDealer);
     } else if (banker_score == 5 && player_score >= 4 && player_score <= 7) {
       printf("\n Banker's Third Card:");
-      generate_third_card(banker_hand, &numCardsDealer);
+      generate_third_card(banker_hand, &numCardsDealer, dealerCardLocationX);
       banker_score = computeScore(banker_hand, numCardsDealer);
     } else if (banker_score == 6 && player_score >= 6 && player_score <= 7) {
       printf("\n Banker's Third Card:");
-      generate_third_card(banker_hand, &numCardsDealer);
+      generate_third_card(banker_hand, &numCardsDealer, dealerCardLocationX);
       banker_score = computeScore(banker_hand, numCardsDealer);
     }
 
