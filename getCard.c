@@ -4041,10 +4041,11 @@ void drawBackgroundTable() {
     }
 }
 
-void drawCard(const int (*array)[45]) {
+void drawCard(const int (*array)[45], int x_loc, int y_loc) {
+	
     for (int x = 0; x < xCard; x++) {
         for (int y = 0; y < yCard; y++) {
-      		fbp->pixels[x][y] = array[x][y];
+      		fbp->pixels[x + y_loc][y+x_loc] = array[x][y];
    		}
     }
 }
@@ -4062,7 +4063,24 @@ int main() {
 	}
 
 	drawBackgroundTable();
-	drawCard(cardArrayPointer);
+	drawCard(cardArrayPointer, 50, 50);
+	cardArrayPointer = getCardArray(4);
+
+	drawCard(cardArrayPointer, 70, 60);
+	
+	cardArrayPointer = getCardArray(40);
+	drawCard(cardArrayPointer, 90, 70);
+	
+	//deler 
+	cardArrayPointer = getCardArray(35);
+	drawCard(cardArrayPointer, 200, 50);
+	
+	cardArrayPointer = getCardArray(4);
+
+	drawCard(cardArrayPointer, 220, 60);
+	
+	cardArrayPointer = getCardArray(40);
+	drawCard(cardArrayPointer, 240, 70);
 	// Assuming you have an integer variable 'index' that represents the index you want to access
 	// Replace 'index' with the actual index value you want to use
 
