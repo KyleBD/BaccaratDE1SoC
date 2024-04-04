@@ -60,6 +60,7 @@
     "ASpades.C": "cpp",
     "2Spades.C": "cpp",
     "KSpades.C": "cpp",
-    "Baccart.C": "cpp"
+    "Baccart.C": "cpp",
+    "NiosVersion.C": "cpp"
   }
 }
