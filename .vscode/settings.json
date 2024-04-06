@@ -61,6 +61,7 @@
     "2Spades.C": "cpp",
     "KSpades.C": "cpp",
     "Baccart.C": "cpp",
-    "NiosVersion.C": "cpp"
+    "NiosVersion.C": "cpp",
+    "BaccartGameEngine.C": "cpp"
   }
 }
