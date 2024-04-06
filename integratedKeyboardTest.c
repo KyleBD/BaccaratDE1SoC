@@ -4,8 +4,10 @@
 #include <string.h>
 #include <time.h>
 
-
+int xStep;
+int yStep;
 int pressedKey;
+int previousKey;
 void read_keyboard() {
     //volatile int * PS2_ptr = (int *) 0xFF200100;
 
@@ -16,23 +18,41 @@ void read_keyboard() {
 
     if (VALID !=0){
         pressedKey = data & 0xFF;
-         if(pressedKey == 0x1C){ //A
-            printf("left");
-        }
-        if(pressedKey == 0x1D){ //W
-            printf("up");
-
-        }
-        if(pressedKey == 0x1B){ //S
-            printf("down");
-
-        }   
-        if(pressedKey == 0x23){ //D
-            printf("right");
-        }
         if(pressedKey == 0xF0){
             printf("break");
+            xStep = 0;
+            yStep = 0;
+            previousKey = pressedKey;
+        }
+        else if(pressedKey == 0x1C && previousKey != 0xF0){ //A
+            printf("left");
+            xStep = -1;
+            previousKey = pressedKey;
+        }
+        else if(pressedKey == 0x1D && previousKey != 0xF0){ //W
+            printf("up");
+            yStep = -1;
+            pressedKey = pressedKey;
+
+        }
+        else if(pressedKey == 0x1B && previousKey != 0xF0){ //S
+            printf("down");
+            yStep = 1;
+            previousKey = pressedKey;
+
         }   
+        else if(pressedKey == 0x23 && previousKey != 0xF0){ //D
+            printf("right");
+            xStep = 1;
+            previousKey = pressedKey;
+        }   
+        else if(pressedKey == 0x5A && previousKey != 0xF0){ //D
+            printf("enter");
+            previousKey = pressedKey;
+        }   
+        else{
+            previousKey = 0;
+        }
     }
 }
 
@@ -121,8 +141,7 @@ int main(void)
     // declare other variables(not shown)
     int xCoord;
     int yCoord;
-    int xStep;
-    int yStep;
+
     short int line_colour = 0xFFE0;
     // initialize location and direction of rectangles(not shown)
 
@@ -150,38 +169,25 @@ int main(void)
         read_keyboard();
         draw_box(xCoord, yCoord, line_colour);
 
-
+        //printf("%d", xStep);
         xCoord = xCoord + xStep;
         yCoord = yCoord + yStep;
-        if(pressedKey == 0x1C){
-            xStep = -1;
-        }
-        else if(pressedKey == 0x23){
-            xStep = 1;
-        }
-        else if(pressedKey == 0x1D){
-            yStep = -1;
-        }
-        else if(pressedKey == 0x1B){
-            yStep = 1;
-        }
 
-
-        if(yCoord == 239 && pressedKey == 0x1B){
+        if(yCoord == 239){
             yCoord = 237;
             yStep = 0;
 
         }
-        else if(yCoord == 0 && pressedKey == 0x1D){
+        else if(yCoord == 0){
             yCoord = 0;
             yStep = 0;
         }
-        if(xCoord == 239 && pressedKey == 0x23){
+        if(xCoord == 239){
             xCoord = 237;
             xStep = 0;
 
         }
-        else if(xCoord == 0 && pressedKey == 0x1C){
+        else if(xCoord == 0){
             xCoord = 0;
             xStep = 0;
         }
