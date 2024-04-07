@@ -27,18 +27,28 @@
 struct fb_t {
 	unsigned short volatile pixels[256][512];
 };
+
 struct chipLocation {
 	int yLocation;
 	int chipType; //0 is 10, 1 is 25, 2 is 50, 3 is 100
 	int betType; //0 Tie, 1 Banker, 2 Player
 };
+
+
 void plot_pixel(int x, int y, short int line_color);
+void delay_loop(int delay_seconds);
 void wait_for_vsync();
 void drawBackgroundTable();
 short int Buffer1[240][512]; // 240 rows, 512 (320 + padding) columns
 short int Buffer2[240][512];
-int chipCounter;
-chipLocation allChips[50];
+
+int chipCounter = 0;
+
+struct chipLocation allChips[50];
+
+
+
+
 
 struct fb_t *const fbp = ((struct fb_t*) 0x8000000);
 
@@ -4644,7 +4654,6 @@ void drawChip(const int (*array)[32], int x_loc, int y_loc) {
 			plot_pixel(y+x_loc,x+y_loc,pixel_value);
 			//Buffer1[x + y_loc][y + x_loc] = array[x][y];
 			//Buffer2[x + y_loc][y + x_loc] = array[x][y];
-			baccaratTable[x+y_loc][y+x_loc] = array[y][y];
 
 			}
     }
@@ -5002,7 +5011,6 @@ void win_checker(int player_score, int banker_score, double player_bet,
 
 int boxSize = 8;
 
-bool enter = false;
 int xStep;
 int yStep;
 int pressedKey;
@@ -5021,30 +5029,30 @@ int data = *PS2_ptr;
     if (VALID !=0){
         pressedKey = data & 0xFF;
         if(pressedKey == 0xF0){
-            printf("break");
+            //printf("break");
             xStep = 0;
             yStep = 0;
             previousKey = pressedKey;
         }
         else if(pressedKey == 0x1C && previousKey != 0xF0){ //A
-            printf("left");
+            //printf("left");
             xStep = -1;
             previousKey = pressedKey;
         }
         else if(pressedKey == 0x1D && previousKey != 0xF0){ //W
-            printf("up");
+            //printf("up");
             yStep = -1;
             pressedKey = pressedKey;
 
         }
         else if(pressedKey == 0x1B && previousKey != 0xF0){ //S
-            printf("down");
+            // printf("down");
             yStep = 1;
             previousKey = pressedKey;
 
         }  
         else if(pressedKey == 0x23 && previousKey != 0xF0){ //D
-            printf("right");
+            //printf("right");
             xStep = 1;
             previousKey = pressedKey;
         }  
@@ -5105,22 +5113,34 @@ void keyBoardFSM(){
 			if(pressedKey == 0x5A){
 				bankerButton = true;
 				if (chip100button){
-					drawChip(chip100, xlocChip, ylocChipBanker);
+					chipCounter++;
+					allChips[chipCounter].yLocation = ylocChipBanker;
+					allChips[chipCounter].chipType = 3;
+					allChips[chipCounter].betType = 1;
 					ylocChipBanker -= 5;
 				}
 				if (chip10button){
-					drawChip(chip10, xlocChip, ylocChipBanker);
+					chipCounter++;
+					allChips[chipCounter].yLocation = ylocChipBanker;
+					allChips[chipCounter].chipType = 0;
+					allChips[chipCounter].betType = 1;
 					ylocChipBanker -= 5;
 				}
 				if (chip25button){
-					drawChip(chip25, xlocChip, ylocChipBanker);
+					chipCounter++;
+					allChips[chipCounter].yLocation = ylocChipBanker;
+					allChips[chipCounter].chipType = 1;
+					allChips[chipCounter].betType = 1;
 					ylocChipBanker -= 5;
 				}
 				if (chip50button){
-					drawChip(chip50, xlocChip, ylocChipBanker);
+					chipCounter++;
+					allChips[chipCounter].yLocation = ylocChipBanker;
+					allChips[chipCounter].chipType = 2;
+					allChips[chipCounter].betType = 1;
 					ylocChipBanker -= 5;
 				}
-					chip10button = false;
+			chip10button = false;
 			chip25button = false;
 			chip50button = false;
 			chip100button = false;
@@ -5139,19 +5159,31 @@ void keyBoardFSM(){
 			if(pressedKey == 0x5A){
 				playerButton = true;
 				if (chip100button){
-					drawChip(chip100, xlocChip, ylocChipPlayer);
+					chipCounter++;
+					allChips[chipCounter].yLocation = ylocChipPlayer;
+					allChips[chipCounter].chipType = 3;
+					allChips[chipCounter].betType = 2;
 					ylocChipPlayer -= 5;
 				}
 				if (chip10button){
-					drawChip(chip10, xlocChip, ylocChipPlayer);
+					chipCounter++;
+					allChips[chipCounter].yLocation = ylocChipPlayer;
+					allChips[chipCounter].chipType = 0;
+					allChips[chipCounter].betType = 2;
 					ylocChipPlayer -= 5;
 				}
 				if (chip25button){
-					drawChip(chip25, xlocChip, ylocChipPlayer);
+					chipCounter++;
+					allChips[chipCounter].yLocation = ylocChipPlayer;
+					allChips[chipCounter].chipType = 1;
+					allChips[chipCounter].betType = 2;
 					ylocChipPlayer -= 5;
 				}
 				if (chip50button){
-					drawChip(chip50, xlocChip, ylocChipPlayer);
+					chipCounter++;
+					allChips[chipCounter].yLocation = ylocChipPlayer;
+					allChips[chipCounter].chipType = 2;
+					allChips[chipCounter].betType = 2;
 					ylocChipPlayer -= 5;
 				}
 				chip10button = false;
@@ -5169,19 +5201,31 @@ void keyBoardFSM(){
 			if(pressedKey == 0x5A){
 				tieButton = true;
 				if (chip100button){
-					drawChip(chip100, xlocChip, ylocChipTie);
+					chipCounter++;
+					allChips[chipCounter].yLocation = ylocChipTie;
+					allChips[chipCounter].chipType = 3;
+					allChips[chipCounter].betType = 0;
 					ylocChipTie -= 5;
 				}
 				if (chip10button){
-					drawChip(chip10, xlocChip, ylocChipTie);
+					chipCounter++;
+					allChips[chipCounter].yLocation = ylocChipTie;
+					allChips[chipCounter].chipType = 0;
+					allChips[chipCounter].betType = 0;
 					ylocChipTie -= 5;
 				}
 				if (chip25button){
-					drawChip(chip25, xlocChip, ylocChipTie);
+					chipCounter++;
+					allChips[chipCounter].yLocation = ylocChipTie;
+					allChips[chipCounter].chipType = 1;
+					allChips[chipCounter].betType = 0;
 					ylocChipTie -= 5;
 				}
 				if (chip50button){
-					drawChip(chip50, xlocChip, ylocChipTie);
+					chipCounter++;
+					allChips[chipCounter].yLocation = ylocChipTie;
+					allChips[chipCounter].chipType = 1;
+					allChips[chipCounter].betType = 0;
 					ylocChipTie -= 5;
 				}
 				chip10button = false;
@@ -5197,7 +5241,26 @@ void keyBoardFSM(){
 	}
 }
 
+void drawallchips(){
+	for (int i = 0; i < chipCounter; i++){
+		int yloc= allChips[i].yLocation;
+		int chiptype = allChips[i].chipType;
+		if (chiptype == 0){
+			drawChip(chip10, xlocChip, yloc);
+		}
+		if (chiptype == 1){
+			drawChip(chip25, xlocChip, yloc);
+		}
+		if (chiptype == 2){
+			drawChip(chip50, xlocChip, yloc);
+		}
+		if (chiptype == 3){
+			drawChip(chip50, xlocChip, yloc);
+		}
+	
+	}
 
+}
 
 
 int pixel_buffer_start; // global variable
@@ -5285,6 +5348,7 @@ int keyboardinput(void)
     while (!space) //not spacebaer
     {
 		drawBackgroundTable();
+		drawallchips();
         read_keyboard();
 		keyBoardFSM();
 		//printf("%b", enter);
@@ -5331,8 +5395,13 @@ void play(double player_bet, double tie_bet, double banker_bet) {
   for (size_t i = 0; i < MAX_SIZE; i++) {
       indexed_cards[i] = -1;
   }
+  xlocChip = 140;
+  ylocChipBanker = 120;
+  ylocChipTie = 70;
+  ylocChipPlayer = 150;
   size = 0;
   chipCounter = 0;
+  space = false; 
 
 
   printf("exited");
@@ -5341,10 +5410,10 @@ void play(double player_bet, double tie_bet, double banker_bet) {
 
   printf("Player's hand: ");
   generate_hand(player_hand,playerCardLocationX);
-  delay_loop(10);
+  delay_loop(5);
   printf("\nBanker's hand: ");
   generate_hand(banker_hand, dealerCardLocationX);
-  delay_loop(10);
+  delay_loop(5);
 
   int player_score = computeScore(player_hand, numCardsPlayer);
   result = getNumberArray(player_score);
@@ -5352,7 +5421,7 @@ void play(double player_bet, double tie_bet, double banker_bet) {
   int banker_score = computeScore(banker_hand, numCardsDealer);
   result = getNumberArray(banker_score);
   drawnumber(result, bankerScoreX, bankerScoreY);
-  delay_loop(10);
+  delay_loop(5);
 
   if (player_score == 8 || player_score == 9 || banker_score == 8 ||
       banker_score == 9) {
@@ -5427,8 +5496,12 @@ int main() {
 	keyboardinput();
 
 	play(bet, bet, bet);
+	while(!space){
+		read_keyboard();
+	}
+	space = false;
   }
 
   
   return 0;
-}
+} 
