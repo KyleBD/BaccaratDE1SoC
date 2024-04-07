@@ -3,6 +3,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <time.h>
+#include <unistd.h> // for usleep function
 
 #define NUM_CARDS 52
 #define NUM_HANDS 2
@@ -23,7 +24,11 @@ struct fb_t {
 	unsigned short volatile pixels[256][512];
 };
 
-
+void plot_pixel(int x, int y, short int line_color);
+void wait_for_vsync();
+void drawBackgroundTable();
+short int Buffer1[240][512]; // 240 rows, 512 (320 + padding) columns
+short int Buffer2[240][512];
 
 struct fb_t *const fbp = ((struct fb_t*) 0x8000000);
 
@@ -294,7 +299,11 @@ void drawCard(const int (*array)[45], int x_loc, int y_loc) {
 	
     for (int x = 0; x < xCard; x++) {
         for (int y = 0; y < yCard; y++) {
-      		fbp->pixels[x + y_loc][y+x_loc] = array[x][y];
+      		// short int pixel_value =  array[x][y];
+			// plot_pixel(y+x_loc,x+y_loc,pixel_value);
+			Buffer1[x + y_loc][y + x_loc] = array[x][y];
+			Buffer2[x + y_loc][y + x_loc] = array[x][y];
+			
    		}
     }
 }
@@ -4620,7 +4629,13 @@ const int chip100[27][32] = {
 void drawChip(const int (*array)[32], int x_loc, int y_loc) {
   for (int x = 0; x < 27; x++) {
     for (int y = 0; y < 32; y++) {
-      if (array[x][y] != 65535) fbp->pixels[x + y_loc][y + x_loc] = array[x][y];
+      if (array[x][y] != 65535) {
+			short int pixel_value = array[x][y];
+			plot_pixel(y+x_loc,x+y_loc,pixel_value);
+			Buffer1[x + y_loc][y + x_loc] = array[x][y];
+			Buffer2[x + y_loc][y + x_loc] = array[x][y];
+
+			}
     }
   }
 }
@@ -4631,7 +4646,11 @@ void drawnumber(const int (*array)[15], int x_loc, int y_loc) {
     for (int x = 0; x < 16; x++) {
         for (int y = 0; y < 15; y++) {
 			if (array[x][y] != 65535){
-      		fbp->pixels[x + y_loc][y+x_loc] = array[x][y];
+      			short int pixel_value = array[x][y];
+				plot_pixel(y+x_loc,x+y_loc,pixel_value);
+				fbp->pixels[x + y_loc][y+x_loc] = array[x][y];
+				Buffer1[x + y_loc][y + x_loc] = array[x][y];
+				Buffer2[x + y_loc][y + x_loc] = array[x][y];
 			}
    		}
     }
@@ -4642,7 +4661,11 @@ void drawwin(int x_loc, int y_loc) {
 	
     for (int x = 0; x < 62; x++) {
         for (int y = 0; y < 279; y++) {
-      		fbp->pixels[x + y_loc][y+x_loc] = WinImage[x][y];
+      		short int pixel_value =  WinImage[x][y];
+			plot_pixel(y+x_loc,x+y_loc,pixel_value);
+			fbp->pixels[x + y_loc][y+x_loc] = WinImage[x][y];
+			Buffer1[x + y_loc][y + x_loc] = WinImage[x][y];
+			Buffer2[x + y_loc][y + x_loc] = WinImage[x][y];
    		}
     }
 }
@@ -4651,7 +4674,11 @@ void drawlose(int x_loc, int y_loc) {
 	
     for (int x = 0; x < 62; x++) {
         for (int y = 0; y < 279; y++) {
-      		fbp->pixels[x + y_loc][y+x_loc] = LoseImage[x][y];
+      		short int pixel_value =  WinImage[x][y];
+			plot_pixel(y+x_loc,x+y_loc,pixel_value);
+			fbp->pixels[x + y_loc][y+x_loc] = LoseImage[x][y];
+			Buffer1[x + y_loc][y + x_loc] = WinImage[x][y];
+			Buffer2[x + y_loc][y + x_loc] = WinImage[x][y];
    		}
     }
 }
@@ -4900,10 +4927,11 @@ void generate_hand(const char *hand[], const int CardLocationX[]) {
 
         cardArrayPointer = getCardArray(card_index);
         drawCard(cardArrayPointer, CardLocationX[i], cardLocationY[i]);
-
         printf("%s%c ", CARDS[card_index], findthesuit(card_index));
         hand[i] = CARDS[card_index];
     }
+
+
 }
 
 
@@ -4961,13 +4989,186 @@ void win_checker(int player_score, int banker_score, double player_bet,
   }
 }
 
+int boxSize = 8;
+
+bool enter = false;
+int xStep;
+int yStep;
+int pressedKey;
+int previousKey;
+void read_keyboard() {
+    //volatile int * PS2_ptr = (int *) 0xFF200100;
+
+	volatile int * PS2_ptr = (int *) 0xFF200100;
+	int data = *PS2_ptr;
+    int VALID = (data & 0x8000);
+    pressedKey = data & 0xFF;
+
+    if (VALID !=0){
+        pressedKey = data & 0xFF;
+        if(pressedKey == 0xF0){
+            printf("break");
+            xStep = 0;
+            yStep = 0;
+            previousKey = pressedKey;
+        }
+        else if(pressedKey == 0x1C && previousKey != 0xF0){ //A
+            printf("left");
+            xStep = -2;
+            previousKey = pressedKey;
+        }
+        else if(pressedKey == 0x1D && previousKey != 0xF0){ //W
+            printf("up");
+            yStep = -2;
+            pressedKey = pressedKey;
+
+        }
+        else if(pressedKey == 0x1B && previousKey != 0xF0){ //S
+            printf("down");
+            yStep = 2;
+            previousKey = pressedKey;
+
+        }   
+        else if(pressedKey == 0x23 && previousKey != 0xF0){ //D
+            printf("right");
+            xStep = 2;
+            previousKey = pressedKey;
+        }   
+        else if(pressedKey == 0x5A && previousKey != 0xF0){ //Enter
+            printf("enter");
+			enter == true;
+            previousKey = pressedKey;
+        }   
+        else{
+            previousKey = 0;
+        }
+    }
+}
+
+
+
+int pixel_buffer_start; // global variable
+short int Buffer1[240][512]; // 240 rows, 512 (320 + padding) columns
+short int Buffer2[240][512];
+void plot_pixel(int x, int y, short int line_color);
+
+
+void plot_box(int startX, int startY, short int boxColour) {
+    for (int i = 0; i < boxSize; i++){
+        for(int j =0; j < boxSize; j++){
+            plot_pixel(startX, startY, boxColour);
+            startX = startX + 1;
+        }
+        startY = startY + 1;
+    }
+}
+
+
+void wait_for_vsync()
+{
+    volatile int * pixel_ctrl_ptr = (int *) 0xff203020; // base address
+    int status;
+    *pixel_ctrl_ptr = 1; // start the synchronization process
+    // write 1 into front buffer address register
+    status = *(pixel_ctrl_ptr + 3); // read the status register
+    while ((status & 0x01) != 0) // polling loop waiting for S bit to go to 0
+    {
+        status = *(pixel_ctrl_ptr + 3);
+    } // loop/function exits when status bit goes to 0
+}
+
+void plot_pixel(int x, int y, short int line_color)
+{
+    volatile short int *one_pixel_address;
+
+        one_pixel_address = pixel_buffer_start + (y << 10) + (x << 1);
+
+        *one_pixel_address = line_color;
+}
+
+
+void draw_box(int xCoord, int yCoord, int line_colour){
+    plot_pixel(xCoord, yCoord, line_colour);
+    plot_pixel(xCoord + 1, yCoord, line_colour);
+    plot_pixel(xCoord, yCoord + 1, line_colour);
+    plot_pixel(xCoord + 1, yCoord + 1, line_colour);
+}
+
 void drawBackgroundTable() {
     for (int x = 0; x < xTable; x++) {
         for (int y = 0; y < yTable; y++) {
-      		fbp->pixels[x][y] = baccaratTable[x][y];
+			short int pixel_value =  baccaratTable[x][y];
+			plot_pixel(y,x, pixel_value);
    		}
     }
 }
+
+int keyboardinput(void)
+{
+    volatile int * pixel_ctrl_ptr = (int *)0xFF203020;
+    // declare other variables(not shown)
+    int xCoord;
+    int yCoord;
+
+    short int line_colour = 0xFFE0;
+    // initialize location and direction of rectangles(not shown)
+
+    /* set front pixel buffer to Buffer 1 */
+    *(pixel_ctrl_ptr + 1) = (int) &Buffer1; // first store the address in the  back buffer
+    /* now, swap the front/back buffers, to set the front buffer location */
+    wait_for_vsync();
+    /* initialize a pointer to the pixel buffer, used by drawing functions */
+    pixel_buffer_start = *pixel_ctrl_ptr;
+    //clear_screen(); // pixel_buffer_start points to the pixel buffer
+	drawBackgroundTable();
+    /* set back pixel buffer to Buffer 2 */
+    *(pixel_ctrl_ptr + 1) = (int) &Buffer2;
+    pixel_buffer_start = *(pixel_ctrl_ptr + 1); // we draw on the back buffer
+    //clear_screen(); // pixel_buffer_start points to the pixel buffer
+
+    xCoord = 150;
+    yCoord = 100;
+    xStep = 0;
+    yStep = 0;
+	int i = 1;
+    while (i != 2) //not spacebaer
+    {
+		drawBackgroundTable();
+        read_keyboard();
+		printf("%b", enter);
+		 if(yCoord >= 239){
+            yCoord = 237;
+            yStep = 0;
+
+        }
+        else if(yCoord <= 0){
+            yCoord = 0;
+            yStep = 0;
+        }
+        if(xCoord >= 315){
+            xCoord = 315;
+            xStep = 0;
+
+        }
+        else if(xCoord <= 0){
+            xCoord = 0;
+            xStep = 0;
+        }
+        draw_box(xCoord, yCoord, line_colour);
+
+        //printf("%d", xStep);
+        xCoord = xCoord + xStep;
+        yCoord = yCoord + yStep;
+
+     
+        wait_for_vsync(); // swap front and back buffers on VGA vertical sync
+        pixel_buffer_start = *(pixel_ctrl_ptr + 1); // new back buffer
+		i++;
+    }
+	return;
+}
+
+
 
 
 void play(double player_bet, double tie_bet, double banker_bet) {
@@ -4982,15 +5183,16 @@ void play(double player_bet, double tie_bet, double banker_bet) {
   size = 0;
 
 
-  drawBackgroundTable();
-
+  printf("exited");
   int numCardsPlayer = 2;
   int numCardsDealer = 2;
 
   printf("Player's hand: ");
   generate_hand(player_hand,playerCardLocationX);
+  delay_loop(10);
   printf("\nBanker's hand: ");
   generate_hand(banker_hand, dealerCardLocationX);
+  delay_loop(10);
 
   int player_score = computeScore(player_hand, numCardsPlayer);
   result = getNumberArray(player_score);
@@ -4998,6 +5200,8 @@ void play(double player_bet, double tie_bet, double banker_bet) {
   int banker_score = computeScore(banker_hand, numCardsDealer);
   result = getNumberArray(banker_score);
   drawnumber(result, bankerScoreX, bankerScoreY);
+  delay_loop(10);
+
   if (player_score == 8 || player_score == 9 || banker_score == 8 ||
       banker_score == 9) {
     printf("\n Player Score: %d", player_score);
@@ -5046,11 +5250,29 @@ void play(double player_bet, double tie_bet, double banker_bet) {
 }
 
 
+void delay_loop(int delay_seconds) {
+    // Convert delay from seconds to microseconds
+    int delay_microseconds = delay_seconds * 1000000;
 
+    printf("Delay loop for %d seconds\n", delay_seconds);
+
+    // Loop for the specified delay duration
+    for (int i = 0; i < delay_microseconds; i++) {
+        // Do nothing, just wait
+        // Note: This is not the most accurate way to create a delay,
+        // but it's a simple demonstration.
+    }
+    
+    printf("Delay loop complete\n");
+}
 int main() {
   printf("Game started\n");
   double bet = 10.0;
   srand(time(NULL));  // Seed the random number generator with current time
+  keyboardinput();
+
+  play(bet, bet, bet);
+
   play(bet, bet, bet);
   
   return 0;
