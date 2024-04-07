@@ -5127,35 +5127,43 @@ void keyBoardFSM(){
 				bankerButton = true;
 				if (chip100button){
 					
+					
 					allChips[chipCounter].yLocation = ylocChipBanker;
 					allChips[chipCounter].chipType = 3;
 					allChips[chipCounter].betType = 1;
 					ylocChipBanker -= 5;
 					chipCounter++;
+					
 				}
 				if (chip10button){
+					
 					
 					allChips[chipCounter].yLocation = ylocChipBanker;
 					allChips[chipCounter].chipType = 0;
 					allChips[chipCounter].betType = 1;
 					ylocChipBanker -= 5;
 					chipCounter++;
+					
 				}
 				if (chip25button){
+					
 					
 					allChips[chipCounter].yLocation = ylocChipBanker;
 					allChips[chipCounter].chipType = 1;
 					allChips[chipCounter].betType = 1;
 					ylocChipBanker -= 5;
 					chipCounter++;
+					
 				}
 				if (chip50button){
+					
 					
 					allChips[chipCounter].yLocation = ylocChipBanker;
 					allChips[chipCounter].chipType = 2;
 					allChips[chipCounter].betType = 1;
 					ylocChipBanker -= 5;
 					chipCounter++;
+					
 				}
 			chip10button = false;
 			chip25button = false;
@@ -5177,13 +5185,16 @@ void keyBoardFSM(){
 				playerButton = true;
 				if (chip100button){
 					
+					
 					allChips[chipCounter].yLocation = ylocChipPlayer;
 					allChips[chipCounter].chipType = 3;
 					allChips[chipCounter].betType = 2;
 					ylocChipPlayer -= 5;
 					chipCounter++;
+					
 				}
 				if (chip10button){
+					
 					
 					allChips[chipCounter].yLocation = ylocChipPlayer;
 					allChips[chipCounter].chipType = 0;
@@ -5193,19 +5204,23 @@ void keyBoardFSM(){
 				}
 				if (chip25button){
 					
+					
 					allChips[chipCounter].yLocation = ylocChipPlayer;
 					allChips[chipCounter].chipType = 1;
 					allChips[chipCounter].betType = 2;
 					ylocChipPlayer -= 5;
 					chipCounter++;
+					
 				}
 				if (chip50button){
+					
 					
 					allChips[chipCounter].yLocation = ylocChipPlayer;
 					allChips[chipCounter].chipType = 2;
 					allChips[chipCounter].betType = 2;
 					ylocChipPlayer -= 5;
 					chipCounter++;
+					
 				}
 				chip10button = false;
 	chip25button = false;
@@ -5231,13 +5246,16 @@ void keyBoardFSM(){
 				}
 				if (chip10button){
 					
+					
 					allChips[chipCounter].yLocation = ylocChipTie;
 					allChips[chipCounter].chipType = 0;
 					allChips[chipCounter].betType = 0;
 					ylocChipTie -= 5;
 					chipCounter++;
+					
 				}
 				if (chip25button){
+					
 					
 					allChips[chipCounter].yLocation = ylocChipTie;
 					allChips[chipCounter].chipType = 1;
@@ -5248,11 +5266,13 @@ void keyBoardFSM(){
 				}
 				if (chip50button){
 					
+					
 					allChips[chipCounter].yLocation = ylocChipTie;
 					allChips[chipCounter].chipType = 2;
 					allChips[chipCounter].betType = 0;
 					ylocChipTie -= 5;
 					chipCounter++;
+					
 				}
 				chip10button = false;
 	chip25button = false;
@@ -5269,12 +5289,15 @@ void keyBoardFSM(){
 
 void drawallchips(){
 	for (int i = 0; i < chipCounter; i++){
+		
 		int yloc= allChips[i].yLocation;
 		int chiptype = allChips[i].chipType;
 		int betype = allChips[i].chipType;
+		if(yloc != 0){
+			
 
 		if (chiptype == 0){
-			if(betype == 0){
+				if(betype == 0){
 				tiebet += 10;
 			}
 			else if (betype == 1){
@@ -5285,10 +5308,10 @@ void drawallchips(){
 			}
 
 			drawChip(chip10, xlocChip, yloc);
-
+	
 		}
-		if (chiptype == 1){
-			if(betype == 0){
+			if (chiptype == 1){
+				if(betype == 0){
 				tiebet += 25;
 			}
 			else if (betype == 1){
@@ -5299,9 +5322,9 @@ void drawallchips(){
 			}
 
 			drawChip(chip25, xlocChip, yloc);
-		}
-		if (chiptype == 2){
-			if(betype == 0){
+			}
+			if (chiptype == 2){
+				if(betype == 0){
 				tiebet += 50;
 			}
 			else if (betype == 1){
@@ -5312,9 +5335,9 @@ void drawallchips(){
 			}
 
 			drawChip(chip50, xlocChip, yloc);
-		}
-		if (chiptype == 3){
-			if(betype == 0){
+			}
+			if (chiptype == 3){
+				if(betype == 0){
 				tiebet += 100;
 			}
 			else if (betype == 1){
@@ -5325,7 +5348,9 @@ void drawallchips(){
 			}
 
 			drawChip(chip100, xlocChip, yloc);
+			}
 		}
+
 	
 	}
 
@@ -5417,9 +5442,13 @@ int keyboardinput(void)
     while (!space) //not spacebaer
     {
 		drawBackgroundTable();
-		drawallchips();
+		//drawallchips();
         read_keyboard();
 		keyBoardFSM();
+		printf("%d\n", allChips[chipCounter].yLocation);
+		if(chipCounter > 0){
+			drawallchips();
+		}
 		//printf("%b", enter);
 		 if(yCoord >= 239){
             yCoord = 237;
@@ -5562,6 +5591,7 @@ int main() {
   double bet = 10.0;
   srand(time(NULL));  // Seed the random number generator with current time
   while(1){
+	ylocChipPlayer = 150;
 	keyboardinput();
 
 	play(playerbet, tiebet, bankerbet);
