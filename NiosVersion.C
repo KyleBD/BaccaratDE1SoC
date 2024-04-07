@@ -4701,11 +4701,11 @@ void drawlose(int x_loc, int y_loc) {
 	
     for (int x = 0; x < 62; x++) {
         for (int y = 0; y < 279; y++) {
-      		short int pixel_value =  WinImage[x][y];
+      		short int pixel_value =  LoseImage[x][y];
 			plot_pixel(y+x_loc,x+y_loc,pixel_value);
 			fbp->pixels[x + y_loc][y+x_loc] = LoseImage[x][y];
-			Buffer1[x + y_loc][y + x_loc] = WinImage[x][y];
-			Buffer2[x + y_loc][y + x_loc] = WinImage[x][y];
+			Buffer1[x + y_loc][y + x_loc] = LoseImage[x][y];
+			Buffer2[x + y_loc][y + x_loc] = LoseImage[x][y];
    		}
     }
 }
@@ -5052,24 +5052,24 @@ int data = *PS2_ptr;
         }
         else if(pressedKey == 0x1C && previousKey != 0xF0){ //A
             //printf("left");
-            xStep = -1;
+            xStep = -3;
             previousKey = pressedKey;
         }
         else if(pressedKey == 0x1D && previousKey != 0xF0){ //W
             //printf("up");
-            yStep = -1;
+            yStep = -3;
             pressedKey = pressedKey;
 
         }
         else if(pressedKey == 0x1B && previousKey != 0xF0){ //S
             // printf("down");
-            yStep = 1;
+            yStep = 3;
             previousKey = pressedKey;
 
         }  
         else if(pressedKey == 0x23 && previousKey != 0xF0){ //D
             //printf("right");
-            xStep = 1;
+            xStep = 3;
             previousKey = pressedKey;
         }  
         else if(pressedKey == 0x5A && previousKey != 0xF0){ //D
@@ -5358,6 +5358,7 @@ void drawallchips(){
 
 
 int pixel_buffer_start; // global variable
+
 void plot_pixel(int x, int y, short int line_color);
 
 
@@ -5411,7 +5412,7 @@ void drawBackgroundTable() {
     }
 }
 
-void keyboardinput()
+void  keyboardinput()
 {
     volatile int * pixel_ctrl_ptr = (int *)0xFF203020;
     // declare other variables(not shown)
@@ -5505,10 +5506,10 @@ void play(double player_bet, double tie_bet, double banker_bet) {
 
   printf("Player's hand: ");
   generate_hand(player_hand,playerCardLocationX);
-  delay_loop(5);
+  delay_loop(10);
   printf("\nBanker's hand: ");
   generate_hand(banker_hand, dealerCardLocationX);
-  delay_loop(5);
+  delay_loop(10);
 
   int player_score = computeScore(player_hand, numCardsPlayer);
   result = getNumberArray(player_score);
@@ -5516,7 +5517,7 @@ void play(double player_bet, double tie_bet, double banker_bet) {
   int banker_score = computeScore(banker_hand, numCardsDealer);
   result = getNumberArray(banker_score);
   drawnumber(result, bankerScoreX, bankerScoreY);
-  delay_loop(5);
+  delay_loop(10);
 
   if (player_score == 8 || player_score == 9 || banker_score == 8 ||
       banker_score == 9) {
