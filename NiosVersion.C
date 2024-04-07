@@ -5358,8 +5358,6 @@ void drawallchips(){
 
 
 int pixel_buffer_start; // global variable
-short int Buffer1[240][512]; // 240 rows, 512 (320 + padding) columns
-short int Buffer2[240][512];
 void plot_pixel(int x, int y, short int line_color);
 
 
@@ -5391,7 +5389,7 @@ void plot_pixel(int x, int y, short int line_color)
 {
     volatile short int *one_pixel_address;
 
-        one_pixel_address = pixel_buffer_start + (y << 10) + (x << 1);
+        one_pixel_address = (volatile short int*)(pixel_buffer_start + (y << 10) + (x << 1));
 
         *one_pixel_address = line_color;
 }
@@ -5413,7 +5411,7 @@ void drawBackgroundTable() {
     }
 }
 
-int keyboardinput(void)
+void keyboardinput()
 {
     volatile int * pixel_ctrl_ptr = (int *)0xFF203020;
     // declare other variables(not shown)
