@@ -20,6 +20,10 @@
 #define bankerScoreX 220
 #define bankerScoreY 26
 
+
+ int xCoord;
+ int yCoord;
+
 struct fb_t {
 	unsigned short volatile pixels[256][512];
 };
@@ -4996,11 +5000,14 @@ int xStep;
 int yStep;
 int pressedKey;
 int previousKey;
+bool space = false;
+
+
 void read_keyboard() {
     //volatile int * PS2_ptr = (int *) 0xFF200100;
 
-	volatile int * PS2_ptr = (int *) 0xFF200100;
-	int data = *PS2_ptr;
+volatile int * PS2_ptr = (int *) 0xFF200100;
+int data = *PS2_ptr;
     int VALID = (data & 0x8000);
     pressedKey = data & 0xFF;
 
@@ -5014,36 +5021,154 @@ void read_keyboard() {
         }
         else if(pressedKey == 0x1C && previousKey != 0xF0){ //A
             printf("left");
-            xStep = -2;
+            xStep = -1;
             previousKey = pressedKey;
         }
         else if(pressedKey == 0x1D && previousKey != 0xF0){ //W
             printf("up");
-            yStep = -2;
+            yStep = -1;
             pressedKey = pressedKey;
 
         }
         else if(pressedKey == 0x1B && previousKey != 0xF0){ //S
             printf("down");
-            yStep = 2;
+            yStep = 1;
             previousKey = pressedKey;
 
-        }   
+        }  
         else if(pressedKey == 0x23 && previousKey != 0xF0){ //D
             printf("right");
-            xStep = 2;
+            xStep = 1;
             previousKey = pressedKey;
-        }   
-        else if(pressedKey == 0x5A && previousKey != 0xF0){ //Enter
+        }  
+        else if(pressedKey == 0x5A && previousKey != 0xF0){ //D
             printf("enter");
-			enter == true;
             previousKey = pressedKey;
-        }   
+        }
+		else if(pressedKey == 0x29 && previousKey != 0xF0){
+			printf("space bar");
+			space = true;
+			previousKey = pressedKey;
+		}  
         else{
             previousKey = 0;
         }
     }
 }
+
+
+bool chip10button;
+bool chip25button;
+bool chip50button;
+bool chip100button;
+bool playerButton;
+bool tieButton;
+bool repeatButton;
+bool bankerButton;
+int xlocChip = 140;
+int ylocChipBanker = 120;
+int ylocChipTie = 70;
+int ylocChipPlayer = 150;
+
+void keyBoardFSM(){
+	chip10button = false;
+	chip25button = false;
+	chip50button = false;
+	chip100button = false;
+	playerButton= false;
+	tieButton= false;
+	repeatButton= false;
+	bankerButton= false;
+	if(yCoord > 195 && yCoord < 220 && xCoord > 80 && xCoord < 110){ //10 chip
+			if(pressedKey == 0x5A){
+				chip10button = true;
+			}
+	}
+	else if(yCoord > 195 && yCoord < 220 && xCoord > 155 && xCoord < 125){ //25 chip
+			if(pressedKey == 0x5A){
+				chip25button = true;
+			}
+	}
+	else if(yCoord > 195 && yCoord < 220 && xCoord > 170 && xCoord < 200){ //50 chip
+			if(pressedKey == 0x5A){
+				chip50button = true;
+			}
+	}
+	else if(yCoord > 195 && yCoord < 220 && xCoord > 210 && xCoord < 240){ //100 chip
+			if(pressedKey == 0x5A){
+				chip100button = true;
+			}
+	}
+	else if(yCoord > 190 && yCoord < 215 && xCoord > 250 && xCoord < 290){ //Banker
+			if(pressedKey == 0x5A){
+				bankerButton = true;
+				if (chip100button){
+					drawChip(chip100, xlocChip, ylocChipBanker);
+					ylocChipBanker -= 5;
+				}
+				if (chip10button){
+					drawChip(chip10, xlocChip, ylocChipBanker);
+					ylocChipBanker -= 5;
+				}
+				if (chip25button){
+					drawChip(chip25, xlocChip, ylocChipBanker);
+					ylocChipBanker -= 5;
+				}
+				if (chip50button){
+					drawChip(chip50, xlocChip, ylocChipBanker);
+					ylocChipBanker -= 5;
+				}
+			}
+	}
+	else if(yCoord > 150 && yCoord < 175 && xCoord > 250 && xCoord < 290){ //Repeat
+			if(pressedKey == 0x5A){
+				repeatButton = true;
+			}
+	}
+	else if(yCoord > 190 && yCoord < 215 && xCoord > 20 && xCoord < 60){ //Player
+			if(pressedKey == 0x5A){
+				playerButton = true;
+				if (chip100button){
+					drawChip(chip100, xlocChip, ylocChipPlayer);
+					ylocChipPlayer -= 5;
+				}
+				if (chip10button){
+					drawChip(chip10, xlocChip, ylocChipPlayer);
+					ylocChipPlayer -= 5;
+				}
+				if (chip25button){
+					drawChip(chip25, xlocChip, ylocChipPlayer);
+					ylocChipPlayer -= 5;
+				}
+				if (chip50button){
+					drawChip(chip50, xlocChip, ylocChipPlayer);
+					ylocChipPlayer -= 5;
+				}
+			}
+	}
+	else if(yCoord > 155 && yCoord < 180 && xCoord > 20 && xCoord < 60){ //tie
+			if(pressedKey == 0x5A){
+				tieButton = true;
+				if (chip100button){
+					drawChip(chip100, xlocChip, ylocChipTie);
+					ylocChipTie -= 5;
+				}
+				if (chip10button){
+					drawChip(chip10, xlocChip, ylocChipTie);
+					ylocChipTie -= 5;
+				}
+				if (chip25button){
+					drawChip(chip25, xlocChip, ylocChipTie);
+					ylocChipTie -= 5;
+				}
+				if (chip50button){
+					drawChip(chip50, xlocChip, ylocChipTie);
+					ylocChipTie -= 5;
+				}
+			}
+	}
+}
+
 
 
 
@@ -5107,9 +5232,7 @@ int keyboardinput(void)
 {
     volatile int * pixel_ctrl_ptr = (int *)0xFF203020;
     // declare other variables(not shown)
-    int xCoord;
-    int yCoord;
-
+ 
     short int line_colour = 0xFFE0;
     // initialize location and direction of rectangles(not shown)
 
@@ -5130,11 +5253,12 @@ int keyboardinput(void)
     yCoord = 100;
     xStep = 0;
     yStep = 0;
-	int i = 1;
-    while (i != 2) //not spacebaer
+
+    while (!space) //not spacebaer
     {
 		drawBackgroundTable();
         read_keyboard();
+		keyBoardFSM();
 		printf("%b", enter);
 		 if(yCoord >= 239){
             yCoord = 237;
@@ -5163,7 +5287,6 @@ int keyboardinput(void)
      
         wait_for_vsync(); // swap front and back buffers on VGA vertical sync
         pixel_buffer_start = *(pixel_ctrl_ptr + 1); // new back buffer
-		i++;
     }
 	return;
 }
@@ -5269,11 +5392,11 @@ int main() {
   printf("Game started\n");
   double bet = 10.0;
   srand(time(NULL));  // Seed the random number generator with current time
+  
   keyboardinput();
 
   play(bet, bet, bet);
 
-  play(bet, bet, bet);
   
   return 0;
 }
