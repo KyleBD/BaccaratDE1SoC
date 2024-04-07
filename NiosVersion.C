@@ -4977,39 +4977,48 @@ void win_checker(int player_score, int banker_score, double player_bet,
     printf("\nTie\n");
     if (tie_bet > 0) {
       int win = tie_bet * 9;
-      win = win - player_bet - banker_bet;
+      win = win - player_bet - banker_bet - tie_bet;
       if (win > 0) {
 	  printf(" You win %lf", win);
 	  drawwin(20,70);
+	  return;
 	  }
-	  else {drawlose(20,70);}
+	  else {
+	  drawlose(20,70);
+	  return;
+	  }
     }
-	
-    return;
-  }
+	  }
   if (player_score < banker_score) {
     printf("\nBanker Win\n");
     if (banker_bet > 0) {
       double win = banker_bet * 1.95;
-      win = win - player_bet - tie_bet;
+      win = win - player_bet - tie_bet - banker_bet;
       if (win > 0) {
 		printf(" You win %lf", win);
 		drawwin(20,70);
+		return;
 		}
-		else {drawlose(20,70);}
+		else {
+			drawlose(20,70);
+			return;
+			}
 
-      return;
     }
   }
   printf("\nPlayer Win");
   if (player_bet > 0) {
     double win = player_bet * 2.00;
-    win = win - tie_bet - banker_bet;
+    win = win - tie_bet - banker_bet-player_bet;
     if (win > 0) {
 	  printf(" You win %lf", win);
 	  drawwin(20,70);
+	  return;
 	  }
-	  else {drawlose(20,70);}
+	  else {
+		drawlose(20,70);
+		return;
+	  }
   }
 }
 
