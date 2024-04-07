@@ -27,12 +27,18 @@
 struct fb_t {
 	unsigned short volatile pixels[256][512];
 };
-
+struct chipLocation {
+	int yLocation;
+	int chipType; //0 is 10, 1 is 25, 2 is 50, 3 is 100
+	int betType; //0 Tie, 1 Banker, 2 Player
+};
 void plot_pixel(int x, int y, short int line_color);
 void wait_for_vsync();
 void drawBackgroundTable();
 short int Buffer1[240][512]; // 240 rows, 512 (320 + padding) columns
 short int Buffer2[240][512];
+int chipCounter;
+chipLocation allChips[50];
 
 struct fb_t *const fbp = ((struct fb_t*) 0x8000000);
 
@@ -5326,6 +5332,7 @@ void play(double player_bet, double tie_bet, double banker_bet) {
       indexed_cards[i] = -1;
   }
   size = 0;
+  chipCounter = 0;
 
 
   printf("exited");
@@ -5411,13 +5418,16 @@ void delay_loop(int delay_seconds) {
     printf("Delay loop complete\n");
 }
 int main() {
+
   printf("Game started\n");
+
   double bet = 10.0;
   srand(time(NULL));  // Seed the random number generator with current time
-  
-  keyboardinput();
+  while(1){
+	keyboardinput();
 
-  play(bet, bet, bet);
+	play(bet, bet, bet);
+  }
 
   
   return 0;
