@@ -5099,7 +5099,6 @@ bool bankerButton;
 
 
 void keyBoardFSM(){
-
 	if(yCoord > 195 && yCoord < 220 && xCoord > 80 && xCoord < 110){ //10 chip
 	
 		if(pressedKey == 0x5A){
@@ -5107,8 +5106,9 @@ void keyBoardFSM(){
 			chip10button = true;
 		}
 	}
-	else if(yCoord > 195 && yCoord < 220 && xCoord > 155 && xCoord < 125){ //25 chip
+	else if(yCoord > 195 && yCoord < 220 && xCoord > 125 && xCoord < 155){ //25 chip
 			if(pressedKey == 0x5A){
+				printf("25 chip");
 				chip25button = true;
 			}
 	}
@@ -5445,7 +5445,6 @@ int keyboardinput(void)
 		//drawallchips();
         read_keyboard();
 		keyBoardFSM();
-		printf("%d\n", allChips[chipCounter].yLocation);
 		if(chipCounter > 0){
 			drawallchips();
 		}
