@@ -5126,32 +5126,36 @@ void keyBoardFSM(){
 			if(pressedKey == 0x5A){
 				bankerButton = true;
 				if (chip100button){
-					chipCounter++;
+					
 					allChips[chipCounter].yLocation = ylocChipBanker;
 					allChips[chipCounter].chipType = 3;
 					allChips[chipCounter].betType = 1;
 					ylocChipBanker -= 5;
+					chipCounter++;
 				}
 				if (chip10button){
-					chipCounter++;
+					
 					allChips[chipCounter].yLocation = ylocChipBanker;
 					allChips[chipCounter].chipType = 0;
 					allChips[chipCounter].betType = 1;
 					ylocChipBanker -= 5;
+					chipCounter++;
 				}
 				if (chip25button){
-					chipCounter++;
+					
 					allChips[chipCounter].yLocation = ylocChipBanker;
 					allChips[chipCounter].chipType = 1;
 					allChips[chipCounter].betType = 1;
 					ylocChipBanker -= 5;
+					chipCounter++;
 				}
 				if (chip50button){
-					chipCounter++;
+					
 					allChips[chipCounter].yLocation = ylocChipBanker;
 					allChips[chipCounter].chipType = 2;
 					allChips[chipCounter].betType = 1;
 					ylocChipBanker -= 5;
+					chipCounter++;
 				}
 			chip10button = false;
 			chip25button = false;
@@ -5172,32 +5176,36 @@ void keyBoardFSM(){
 			if(pressedKey == 0x5A){
 				playerButton = true;
 				if (chip100button){
-					chipCounter++;
+					
 					allChips[chipCounter].yLocation = ylocChipPlayer;
 					allChips[chipCounter].chipType = 3;
 					allChips[chipCounter].betType = 2;
 					ylocChipPlayer -= 5;
+					chipCounter++;
 				}
 				if (chip10button){
-					chipCounter++;
+					
 					allChips[chipCounter].yLocation = ylocChipPlayer;
 					allChips[chipCounter].chipType = 0;
 					allChips[chipCounter].betType = 2;
 					ylocChipPlayer -= 5;
+					chipCounter++;
 				}
 				if (chip25button){
-					chipCounter++;
+					
 					allChips[chipCounter].yLocation = ylocChipPlayer;
 					allChips[chipCounter].chipType = 1;
 					allChips[chipCounter].betType = 2;
 					ylocChipPlayer -= 5;
+					chipCounter++;
 				}
 				if (chip50button){
-					chipCounter++;
+					
 					allChips[chipCounter].yLocation = ylocChipPlayer;
 					allChips[chipCounter].chipType = 2;
 					allChips[chipCounter].betType = 2;
 					ylocChipPlayer -= 5;
+					chipCounter++;
 				}
 				chip10button = false;
 	chip25button = false;
@@ -5214,32 +5222,37 @@ void keyBoardFSM(){
 			if(pressedKey == 0x5A){
 				tieButton = true;
 				if (chip100button){
-					chipCounter++;
 					allChips[chipCounter].yLocation = ylocChipTie;
 					allChips[chipCounter].chipType = 3;
 					allChips[chipCounter].betType = 0;
 					ylocChipTie -= 5;
+					chipCounter++;
+
 				}
 				if (chip10button){
-					chipCounter++;
+					
 					allChips[chipCounter].yLocation = ylocChipTie;
 					allChips[chipCounter].chipType = 0;
 					allChips[chipCounter].betType = 0;
 					ylocChipTie -= 5;
+					chipCounter++;
 				}
 				if (chip25button){
-					chipCounter++;
+					
 					allChips[chipCounter].yLocation = ylocChipTie;
 					allChips[chipCounter].chipType = 1;
 					allChips[chipCounter].betType = 0;
 					ylocChipTie -= 5;
+					chipCounter++;
+					
 				}
 				if (chip50button){
-					chipCounter++;
+					
 					allChips[chipCounter].yLocation = ylocChipTie;
 					allChips[chipCounter].chipType = 2;
 					allChips[chipCounter].betType = 0;
 					ylocChipTie -= 5;
+					chipCounter++;
 				}
 				chip10button = false;
 	chip25button = false;
