@@ -27,6 +27,9 @@ int xlocChip = 140;
 int ylocChipBanker = 120;
 int ylocChipTie = 70;
 int ylocChipPlayer = 150;
+int tiebet = 0;
+int playerbet = 0;
+int bankerbet = 0;
 
 struct fb_t {
 	unsigned short volatile pixels[256][512];
@@ -5255,16 +5258,59 @@ void drawallchips(){
 	for (int i = 0; i < chipCounter; i++){
 		int yloc= allChips[i].yLocation;
 		int chiptype = allChips[i].chipType;
+		int betype = allChips[i].chipType;
+
 		if (chiptype == 0){
+			if(betype == 0){
+				tiebet += 10;
+			}
+			else if (betype == 1){
+				bankerbet += 10;
+			}
+			else {
+				playerbet += 10;
+			}
+
 			drawChip(chip10, xlocChip, yloc);
+
 		}
 		if (chiptype == 1){
+			if(betype == 0){
+				tiebet += 25;
+			}
+			else if (betype == 1){
+				bankerbet += 25;
+			}
+			else {
+				playerbet += 25;
+			}
+
 			drawChip(chip25, xlocChip, yloc);
 		}
 		if (chiptype == 2){
+			if(betype == 0){
+				tiebet += 50;
+			}
+			else if (betype == 1){
+				bankerbet += 50;
+			}
+			else {
+				playerbet += 50;
+			}
+
 			drawChip(chip50, xlocChip, yloc);
 		}
 		if (chiptype == 3){
+			if(betype == 0){
+				tiebet += 100;
+			}
+			else if (betype == 1){
+				bankerbet += 100;
+			}
+			else {
+				playerbet += 100;
+			}
+
 			drawChip(chip100, xlocChip, yloc);
 		}
 	
@@ -5505,9 +5551,10 @@ int main() {
   while(1){
 	keyboardinput();
 
-	play(bet, bet, bet);
+	play(playerbet, tiebet, bankerbet);
 	while(!space){
 		read_keyboard();
+
 	}
 	space = false;
   }
