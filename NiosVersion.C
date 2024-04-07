@@ -21,8 +21,12 @@
 #define bankerScoreY 26
 
 
- int xCoord;
- int yCoord;
+int xCoord;
+int yCoord;
+int xlocChip = 140;
+int ylocChipBanker = 120;
+int ylocChipTie = 70;
+int ylocChipPlayer = 150;
 
 struct fb_t {
 	unsigned short volatile pixels[256][512];
@@ -5080,10 +5084,7 @@ bool playerButton;
 bool tieButton;
 bool repeatButton;
 bool bankerButton;
-int xlocChip = 140;
-int ylocChipBanker = 120;
-int ylocChipTie = 70;
-int ylocChipPlayer = 150;
+
 
 void keyBoardFSM(){
 
@@ -5224,7 +5225,7 @@ void keyBoardFSM(){
 				if (chip50button){
 					chipCounter++;
 					allChips[chipCounter].yLocation = ylocChipTie;
-					allChips[chipCounter].chipType = 1;
+					allChips[chipCounter].chipType = 2;
 					allChips[chipCounter].betType = 0;
 					ylocChipTie -= 5;
 				}
@@ -5255,7 +5256,7 @@ void drawallchips(){
 			drawChip(chip50, xlocChip, yloc);
 		}
 		if (chiptype == 3){
-			drawChip(chip50, xlocChip, yloc);
+			drawChip(chip100, xlocChip, yloc);
 		}
 	
 	}
